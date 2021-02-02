@@ -1,39 +1,33 @@
 <?php
 
-$ffi = FFI::cdef("
+$ffi = FFI::cdef('
 	
 	struct test 
 	{
 		char *field_string;
 	};
 	
-", "libc.so.6");
-
+', 'libc.so.6');
 
 // Create
-$test = $ffi->new("struct test");
+$test = $ffi->new('struct test');
 
-
-$p = FFI::new("char[2]");
-$p[0] = "M";
-$p[1] = "Y";
+$p = FFI::new('char[2]');
+$p[0] = 'M';
+$p[1] = 'Y';
 var_dump($p);
 echo "\n-----\n";
 
-
-// 
-$p = FFI::new("struct test { const char field_string[5]; }");
-FFI::memcpy($p, "ABCDE", 5);
+$p = FFI::new('struct test { const char field_string[5]; }');
+FFI::memcpy($p, 'ABCDE', 5);
 
 echo "\n-----\n";
 var_dump($p);
 
-
-// 
-$p = FFI::new("char");
+$p = FFI::new('char');
 $pointer = FFI::addr($p);
-FFI::memset($pointer, ord("A"), FFI::sizeof($p) * 5);
-FFI::memcpy($pointer, "ABCDE", FFI::sizeof($p) * 5);
+FFI::memset($pointer, ord('A'), FFI::sizeof($p) * 5);
+FFI::memcpy($pointer, 'ABCDE', FFI::sizeof($p) * 5);
 
 echo "\n-----\n";
 var_dump($p);
@@ -41,8 +35,5 @@ echo "\n-----\n";
 var_dump($pointer);
 echo "\n-----\n";
 
-
-
-
-// Dump all 
+// Dump all
 // var_dump($test);

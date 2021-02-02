@@ -1,154 +1,115 @@
 <?php
 
 namespace Gtk
-{
-	/**
-	 *
-	 */
-	class Container extends Widget
-	{
-		/**
-		 *
-		 */
-		protected $name = "GtkContainer";
+;
 
-		/**
-		 *
-		 */
-		public function __construct()
-		{
-			parent::__construct();
-		}
+    class Container extends Widget
+    {
+        protected $name = 'GtkContainer';
 
-		/**
-		 *
-		 */
-		public function __call($name, $value)
-		{
-			$function_name = "gtk_container_" . $name;
-			$widget_cast = "GtkContainer *";
-		
-			try {
-				if(count($value) == 0)	 {
-					$returned = \Gtk::getFFI()->$function_name(\Gtk::getFFI()->cast($widget_cast, $this->cdata_instance));
-				}
-				else if(count($value) == 1)	 {
-					$returned = \Gtk::getFFI()->$function_name(\Gtk::getFFI()->cast($widget_cast, $this->cdata_instance), $value[0]);
-				}
-				else if(count($value) == 2)	 {
-					$returned = \Gtk::getFFI()->$function_name(\Gtk::getFFI()->cast($widget_cast, $this->cdata_instance), $value[0], $value[1]);
-				}
-				else if(count($value) == 3)	 {
-					$returned = \Gtk::getFFI()->$function_name(\Gtk::getFFI()->cast($widget_cast, $this->cdata_instance), $value[0], $value[1], $value[2]);
-				}
-				else if(count($value) == 4)	 {
-					$returned = \Gtk::getFFI()->$function_name(\Gtk::getFFI()->cast($widget_cast, $this->cdata_instance), $value[0], $value[1], $value[2], $value[3]);
-				}
+        public function __construct()
+        {
+            parent::__construct();
+        }
 
-				$return = $this->parse_variable($returned, $name);
-			}
-			catch(\FFI\Exception $e) {
-				if(strpos($e->getMessage(), "Attempt to call undefined C function") !== FALSE) {
-					$return = parent::__call($name, $value);
-				}
+        public function __call($name, $value)
+        {
+            $function_name = 'gtk_container_'.$name;
+            $widget_cast = 'GtkContainer *';
 
-				throw $e;
-			}
+            try {
+                if (0 == count($value)) {
+                    $returned = \Gtk::getFFI()->$function_name(\Gtk::getFFI()->cast($widget_cast, $this->cdata_instance));
+                } elseif (1 == count($value)) {
+                    $returned = \Gtk::getFFI()->$function_name(\Gtk::getFFI()->cast($widget_cast, $this->cdata_instance), $value[0]);
+                } elseif (2 == count($value)) {
+                    $returned = \Gtk::getFFI()->$function_name(\Gtk::getFFI()->cast($widget_cast, $this->cdata_instance), $value[0], $value[1]);
+                } elseif (3 == count($value)) {
+                    $returned = \Gtk::getFFI()->$function_name(\Gtk::getFFI()->cast($widget_cast, $this->cdata_instance), $value[0], $value[1], $value[2]);
+                } elseif (4 == count($value)) {
+                    $returned = \Gtk::getFFI()->$function_name(\Gtk::getFFI()->cast($widget_cast, $this->cdata_instance), $value[0], $value[1], $value[2], $value[3]);
+                }
 
-			return $return;
-		}
+                $return = $this->parse_variable($returned, $name);
+            } catch (\FFI\Exception $e) {
+                if (false !== strpos($e->getMessage(), 'Attempt to call undefined C function')) {
+                    $return = parent::__call($name, $value);
+                }
 
-		/**
-		 *
-		 */
-		public function add($widget)
-		{
-			$this->ffi->gtk_container_add($this->ffi->cast("GtkContainer *", $this->cdata_instance), $this->ffi->cast("GtkWidget *", $widget->cdata_instance));
-		}
+                throw $e;
+            }
 
-		/**
-		 *
-		 */
-		public function remove($widget)
-		{
-			$this->ffi->gtk_container_remove($this->ffi->cast("GtkContainer *", $this->cdata_instance), $this->ffi->cast("GtkWidget *", $widget->cdata_instance));
-		}
+            return $return;
+        }
 
-		/**
-		 *
-		 */
-		public function foreach($callback)
-		{
-			// Create the user data, removing callback argument
-			$userdata = func_get_args();
-			array_shift($userdata);
+        public function add($widget)
+        {
+            $this->ffi->gtk_container_add($this->ffi->cast('GtkContainer *', $this->cdata_instance), $this->ffi->cast('GtkWidget *', $widget->cdata_instance));
+        }
 
-			// Call the method
-			$this->ffi->gtk_container_foreach($this->ffi->cast("GtkContainer *", $this->cdata_instance), function($widget) use ($callback, $userdata) {
+        public function remove($widget)
+        {
+            $this->ffi->gtk_container_remove($this->ffi->cast('GtkContainer *', $this->cdata_instance), $this->ffi->cast('GtkWidget *', $widget->cdata_instance));
+        }
 
-				// Get type of widget
-				$object = $this->PHPGTK_OBJECT($widget);
-				
-				// Add the widget as the first parameter
-				array_unshift($userdata, $object);
-				
-				// Call the user function
-				call_user_func_array($callback, $userdata);
+        public function foreach($callback)
+        {
+            // Create the user data, removing callback argument
+            $userdata = func_get_args();
+            array_shift($userdata);
 
-			}, NULL);
-		}
+            // Call the method
+            $this->ffi->gtk_container_foreach($this->ffi->cast('GtkContainer *', $this->cdata_instance), function ($widget) use ($callback, $userdata) {
+                // Get type of widget
+                $object = $this->PHPGTK_OBJECT($widget);
 
-		/**
-		 *
-		 */
-		public function get_children()
-		{
-			$children = [];
+                // Add the widget as the first parameter
+                array_unshift($userdata, $object);
 
-			$this->foreach(function($widget) use (&$children) {
-				$children[] = $widget;
-			});
+                // Call the user function
+                call_user_func_array($callback, $userdata);
+            }, null);
+        }
 
-			return $children;
-		}
+        public function get_children()
+        {
+            $children = [];
 
-		// /**
-		//  *
-		//  */
-		// public function get_focus_child()
-		// {
-		// 	$children = [];
+            $this->foreach(function ($widget) use (&$children) {
+                $children[] = $widget;
+            });
 
-		// 	$widget = $this->ffi->gtk_container_get_focus_child($this->ffi->cast("GtkContainer *", $this->cdata_instance));
+            return $children;
+        }
 
-		// 	$object = $this->PHPGTK_OBJECT($widget);
+        // /**
+        //  *
+        //  */
+        // public function get_focus_child()
+        // {
+        // 	$children = [];
 
-		// 	return $object;
-		// }
+        // 	$widget = $this->ffi->gtk_container_get_focus_child($this->ffi->cast("GtkContainer *", $this->cdata_instance));
 
-		/**
-		 *
-		 */
-		public function set_focus_child($widget)
-		{
-			$this->ffi->gtk_container_set_focus_child($this->ffi->cast("GtkContainer *", $this->cdata_instance), $this->ffi->cast("GtkWidget *", $widget->cdata_instance));
-		}
+        // 	$object = $this->PHPGTK_OBJECT($widget);
 
-		/**
-		 *
-		 */
-		public function child_type()
-		{
-			$a = $this->ffi->gtk_container_child_type($this->ffi->cast("GtkContainer *", $this->cdata_instance));
-			return $a;
-		}
+        // 	return $object;
+        // }
 
-		/**
-		 *
-		 */
-		public function child_notify($widget, $child_property)
-		{
-			$this->ffi->gtk_container_child_notify($this->ffi->cast("GtkContainer *", $this->cdata_instance), $this->ffi->cast("GtkWidget *", $widget->cdata_instance), $child_property);
-		}
-	}
-}
+        public function set_focus_child($widget)
+        {
+            $this->ffi->gtk_container_set_focus_child($this->ffi->cast('GtkContainer *', $this->cdata_instance), $this->ffi->cast('GtkWidget *', $widget->cdata_instance));
+        }
+
+        public function child_type()
+        {
+            $a = $this->ffi->gtk_container_child_type($this->ffi->cast('GtkContainer *', $this->cdata_instance));
+
+            return $a;
+        }
+
+        public function child_notify($widget, $child_property)
+        {
+            $this->ffi->gtk_container_child_notify($this->ffi->cast('GtkContainer *', $this->cdata_instance), $this->ffi->cast('GtkWidget *', $widget->cdata_instance), $child_property);
+        }
+    }

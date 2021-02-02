@@ -1,22 +1,20 @@
 <?php
 
-if(strtolower(PHP_OS_FAMILY) === "windows") {
-	// define("GTK_LIB_PATH", "C:\\php7.4\\bin\\gtk-3.dll");
-	define("GTK_LIB_PATH", "C:\\php7.4\\libgtk-3-0.dll");
-	define("GOBJECT_LIB_PATH", "C:\\php7.4\\libgobject-2.0-0.dll");
-
-}
-elseif(strtolower(PHP_OS_FAMILY) === "linux") {
-	define("GTK_LIB_PATH", "/usr/lib/x86_64-linux-gnu/libgtk-3.so.0");
-	define("GOBJECT_LIB_PATH", "/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0");
+if ('windows' === strtolower(PHP_OS_FAMILY)) {
+    // define("GTK_LIB_PATH", "C:\\php7.4\\bin\\gtk-3.dll");
+    define('GTK_LIB_PATH', 'C:\\php7.4\\libgtk-3-0.dll');
+    define('GOBJECT_LIB_PATH', 'C:\\php7.4\\libgobject-2.0-0.dll');
+} elseif ('linux' === strtolower(PHP_OS_FAMILY)) {
+    define('GTK_LIB_PATH', '/usr/lib/x86_64-linux-gnu/libgtk-3.so.0');
+    define('GOBJECT_LIB_PATH', '/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0');
 }
 
-putenv("GTK_CSD=0");
-putenv("GTK_DEBUG=0");
-putenv("GDK_DEBUG=0");
-putenv("GTK_EXE_PREFIX=C:\\php7.4\\lib");
+putenv('GTK_CSD=0');
+putenv('GTK_DEBUG=0');
+putenv('GDK_DEBUG=0');
+putenv('GTK_EXE_PREFIX=C:\\php7.4\\lib');
 
-$glib = FFI::cdef("
+$glib = FFI::cdef('
 
 	typedef void *GCallback(void);
 
@@ -95,10 +93,9 @@ $glib = FFI::cdef("
 	GClosure *g_cclosure_new_swap (GCallback callback_func, gpointer user_data, GClosureNotify destroy_data);
 	gulong g_signal_connect_closure (gpointer instance, const gchar *detailed_signal, GClosure *closure, gboolean after);
 
-", GOBJECT_LIB_PATH);
+', GOBJECT_LIB_PATH);
 
-
-$gtk = FFI::cdef("
+$gtk = FFI::cdef('
 
 	typedef void* gpointer;
 	typedef unsigned int guint;
@@ -133,28 +130,28 @@ $gtk = FFI::cdef("
 		guint gtk_get_minor_version (void);
 		guint gtk_get_micro_version (void);
 
-", GTK_LIB_PATH);
+', GTK_LIB_PATH);
 
 // Return GType from Object
 function G_OBJECT_TYPE($a)
 {
-	global $glib;
+    global $glib;
 
-	echo "OK1.1\n";
-	$g_class = $glib->cast("GTypeInstance *", $a)->g_class;
-	var_dump($g_class);
-	echo "OK1.2\n";
-	$g_type = $g_class->g_type;
-	var_dump($g_type);
-	echo "OK1.3\n";
-	$fundamental = $glib->g_type_fundamental($g_type);
-	var_dump($fundamental);
-	echo "OK1.4\n";
+    echo "OK1.1\n";
+    $g_class = $glib->cast('GTypeInstance *', $a)->g_class;
+    var_dump($g_class);
+    echo "OK1.2\n";
+    $g_type = $g_class->g_type;
+    var_dump($g_type);
+    echo "OK1.3\n";
+    $fundamental = $glib->g_type_fundamental($g_type);
+    var_dump($fundamental);
+    echo "OK1.4\n";
 
-	var_dump($glib->g_type_name($g_type));
-	echo "OK1.5\n";
+    var_dump($glib->g_type_name($g_type));
+    echo "OK1.5\n";
 
-	return $g_type;
+    return $g_type;
 }
 
 // Working
@@ -164,29 +161,27 @@ $pargv = FFI::addr($argv);
 $gtk->gtk_init(FFI::addr($argc), FFI::addr($pargv));
 
 // Version
-echo "GTK: " . $gtk->gtk_get_major_version() . "." . $gtk->gtk_get_minor_version() . "." . $gtk->gtk_get_micro_version() . "\n";
+echo 'GTK: '.$gtk->gtk_get_major_version().'.'.$gtk->gtk_get_minor_version().'.'.$gtk->gtk_get_micro_version()."\n";
 
-	// Window
-	$window = $gtk->gtk_window_new(0);
-	$gtk->gtk_widget_show_all($gtk->cast("GtkWidget *", $window));
+    // Window
+    $window = $gtk->gtk_window_new(0);
+    $gtk->gtk_widget_show_all($gtk->cast('GtkWidget *', $window));
 
-	// Connect
-	$signal_name = "destroy";
-	echo "OK1\n";
-	$type = G_OBJECT_TYPE($glib->cast("gpointer", $window));
-	echo "OK1.0\n";
-	$lookup = $glib->g_signal_lookup ($signal_name, $type);
-	echo "OK2\n";
-	$signal_info = \FFI::addr($glib->new("GSignalQuery"));
-	echo "OK3\n";
-	$glib->g_signal_query($lookup, $signal_info);
-	echo "OK4\n";
-	$closure = $glib->g_cclosure_new_swap(function() use ($gtk, $glib) {
-
-		var_dump("OK");
-
-	}, NULL, NULL);
-	$glib->g_signal_connect_closure($glib->cast("gpointer", $window), $signal_name, $closure, TRUE);
+    // Connect
+    $signal_name = 'destroy';
+    echo "OK1\n";
+    $type = G_OBJECT_TYPE($glib->cast('gpointer', $window));
+    echo "OK1.0\n";
+    $lookup = $glib->g_signal_lookup($signal_name, $type);
+    echo "OK2\n";
+    $signal_info = \FFI::addr($glib->new('GSignalQuery'));
+    echo "OK3\n";
+    $glib->g_signal_query($lookup, $signal_info);
+    echo "OK4\n";
+    $closure = $glib->g_cclosure_new_swap(function () {
+        var_dump('OK');
+    }, null, null);
+    $glib->g_signal_connect_closure($glib->cast('gpointer', $window), $signal_name, $closure, true);
 
 // Loop
 $gtk->gtk_main();

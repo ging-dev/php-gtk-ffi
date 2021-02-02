@@ -1,20 +1,15 @@
 <?php
 
 /**
-
 Types:
-	- https://developer.gnome.org/glib/stable/glib-Basic-Types.html
+    - https://developer.gnome.org/glib/stable/glib-Basic-Types.html
 
-**/
-
-/**
- *
- */
+ **/
 class GtkWindow
 {
-	public function __construct($tipo=1)
-	{
-		$this->ffi = FFI::cdef("
+    public function __construct($tipo = 1)
+    {
+        $this->ffi = FFI::cdef('
 
 			typedef struct _GtkWidget GtkWidget;
 			typedef struct _GtkButton GtkButton;
@@ -180,123 +175,101 @@ class GtkWindow
 
 			const gchar *g_type_name (GType type);
 
-		", "libgtk-3.so");
+		', 'libgtk-3.so');
 
+        // $a = FFI::cdef("
 
-		// $a = FFI::cdef("
+        // 	typedef void* gpointer;
 
-		// 	typedef void* gpointer;
+        // 	typedef void  (*GCallback)              (void);
 
-		// 	typedef void  (*GCallback)              (void);
+        // 	void g_signal_connect_object (gpointer instance, const gchar *detailed_signal, GCallback c_handler, gpointer gobject, GConnectFlags connect_flags););
 
-		// 	void g_signal_connect_object (gpointer instance, const gchar *detailed_signal, GCallback c_handler, gpointer gobject, GConnectFlags connect_flags););
+        // ", "libglib-2.0.so.0");
 
-		// ", "libglib-2.0.so.0");
+        $this->instance = $this->ffi->gtk_window_new(0);
 
-		$this->instance = $this->ffi->gtk_window_new(0);
+        $this->ffi->g_signal_connect_object($this->ffi->cast('gpointer *', $this->instance), 'destroy', function ($a = null) { global $ffi; $ffi->gtk_main_quit(); }, null, 1);
 
-		$this->ffi->g_signal_connect_object($this->ffi->cast("gpointer *", $this->instance), "destroy", function($a=NULL) { global $ffi; $ffi->gtk_main_quit(); }, NULL, 1);
+        $this->button = $this->ffi->gtk_button_new_with_label('BUTTON');
+        $this->ffi->gtk_container_add($this->ffi->cast('GtkContainer *', $this->instance), $this->ffi->cast('GtkWidget *', $this->button));
 
+        // $this->ffi->g_signal_connect_object($this->ffi->cast("gpointer *", $this->button), "button-release-event", function($a=NULL, $b=NULL) {
 
+        // 	echo "\n----\nclicked\n----\n";
 
-		$this->button = $this->ffi->gtk_button_new_with_label("BUTTON");
-		$this->ffi->gtk_container_add($this->ffi->cast("GtkContainer *", $this->instance), $this->ffi->cast("GtkWidget *", $this->button));
+        // 	$this->ffi->gtk_button_set_label($this->ffi->cast("GtkButton *", $a), "OK");
 
-		// $this->ffi->g_signal_connect_object($this->ffi->cast("gpointer *", $this->button), "button-release-event", function($a=NULL, $b=NULL) {
-			
+        // 	echo "\n----\ncasting\n----\n";
+        // 	$c = $this->ffi->cast("GdkEventButton", $b->button);
+        // 	echo "\n----\ncasted\n----\n";
 
-		// 	echo "\n----\nclicked\n----\n";
+        // 	var_dump($c->x);
 
-		// 	$this->ffi->gtk_button_set_label($this->ffi->cast("GtkButton *", $a), "OK");
+        // }, NULL, 1);
+        // $this->ffi->g_signal_connect_data($this->ffi->cast("gpointer *", $this->button), "button-release-event", function($a=NULL) { echo "\n----\button-release-event\n----\n"; var_dump($a); }, NULL, NULL, 2);
 
-		// 	echo "\n----\ncasting\n----\n";
-		// 	$c = $this->ffi->cast("GdkEventButton", $b->button);
-		// 	echo "\n----\ncasted\n----\n";
+        // NEW CALLBACK WAY
+        // $lookup = $this->ffi->g_signal_lookup ("button-release-event", $this->G_OBJECT_TYPE($this->button));
+        // $lookup = $this->ffi->g_signal_lookup ("clicked", $this->G_OBJECT_TYPE($this->button));
 
-		// 	var_dump($c->x);
+        $function = function () {
+            // for($i=0; $i<=$this->signal_info->n_params; $i++) {
 
-		// }, NULL, 1);
-		// $this->ffi->g_signal_connect_data($this->ffi->cast("gpointer *", $this->button), "button-release-event", function($a=NULL) { echo "\n----\button-release-event\n----\n"; var_dump($a); }, NULL, NULL, 2);
+            // 	echo "\n----\ncasting " . $i . "\n----\n";
 
-		
-		// NEW CALLBACK WAY
-		// $lookup = $this->ffi->g_signal_lookup ("button-release-event", $this->G_OBJECT_TYPE($this->button));
-		// $lookup = $this->ffi->g_signal_lookup ("clicked", $this->G_OBJECT_TYPE($this->button));
-		
+            // 	$param = func_get_arg($i);
+            // 	if($param == NULL) {
+            // 		continue;
+            // 	}
 
-		$function = function() {
+            // 	$a = $this->ffi->cast($this->ffi->g_type_name($this->signal_info->param_types[0]), func_get_arg($i-1));
+            // 	var_dump($a);
 
+            // }
 
-			// for($i=0; $i<=$this->signal_info->n_params; $i++) {
+            // var_dump($this->ffi->g_type_name($this->signal_info->param_types[0]));
+            $a = func_get_arg(1);
+            $b = $a[0];
+            $c = $this->ffi->cast('struct _GdkEvent', $b);
+            var_dump($c);
 
-			// 	echo "\n----\ncasting " . $i . "\n----\n";
-
-			// 	$param = func_get_arg($i);
-			// 	if($param == NULL) {
-			// 		continue;
-			// 	}
-
-			// 	$a = $this->ffi->cast($this->ffi->g_type_name($this->signal_info->param_types[0]), func_get_arg($i-1));
-			// 	var_dump($a);
-
-			// }
-
-			// var_dump($this->ffi->g_type_name($this->signal_info->param_types[0]));
-			$a = func_get_arg(1);
-			$b = $a[0];
-			$c = $this->ffi->cast("struct _GdkEvent", $b);
-			var_dump($c);
-
-//			$a = $this->ffi->cast($this->ffi->g_type_name($this->signal_info->param_types[0]) . " *", func_get_arg(1));
+            //			$a = $this->ffi->cast($this->ffi->g_type_name($this->signal_info->param_types[0]) . " *", func_get_arg(1));
 //			var_dump($a);
-			
-		};
+        };
 
+        $lookup = $this->ffi->g_signal_lookup('button-release-event', $this->G_OBJECT_TYPE($this->button));
+        $this->signal_info = FFI::addr($this->ffi->new('GSignalQuery'));
+        $this->ffi->g_signal_query($lookup, $this->signal_info);
 
-		$lookup = $this->ffi->g_signal_lookup ("button-release-event", $this->G_OBJECT_TYPE($this->button));
-		$this->signal_info = FFI::addr($this->ffi->new("GSignalQuery"));
-		$this->ffi->g_signal_query($lookup, $this->signal_info);
+        $closure = $this->ffi->g_cclosure_new_swap($function, null, null);
+        $this->ffi->g_signal_connect_closure($this->ffi->cast('gpointer *', $this->button), 'button-release-event', $closure, true);
+    }
 
-		$closure = $this->ffi->g_cclosure_new_swap($function, NULL, NULL);
-		$this->ffi->g_signal_connect_closure($this->ffi->cast("gpointer *", $this->button), "button-release-event", $closure, TRUE);
+    public function G_OBJECT_TYPE($a)
+    {
+        $g_class = $this->ffi->cast('GTypeInstance *', $a)->g_class;
+        $g_type = $this->ffi->cast('GTypeClass *', $g_class)->g_type;
 
+        return $g_type;
+    }
 
+    public function show_all()
+    {
+        $this->ffi->gtk_widget_show_all($this->instance);
+    }
 
-		
-
-
-	}
-
-	public function G_OBJECT_TYPE($a)
-	{
-		$g_class = $this->ffi->cast("GTypeInstance *", $a)->g_class;
-		$g_type = $this->ffi->cast("GTypeClass *", $g_class)->g_type;
-
-		return $g_type;
-	}
-
-	public function show_all()
-	{
-		$this->ffi->gtk_widget_show_all($this->instance);
-	}
-
-	public function set_title($title="")
-	{
-		$this->ffi->gtk_window_set_title($this->ffi->cast("GtkWindow *", $this->instance), $title);
-	}
+    public function set_title($title = '')
+    {
+        $this->ffi->gtk_window_set_title($this->ffi->cast('GtkWindow *', $this->instance), $title);
+    }
 }
 
-/**
- */
-$ffi = FFI::cdef("
+$ffi = FFI::cdef('
 	void gtk_init(int *, char **[]);
 	void gtk_main();
 	void gtk_main_quit();
-", "/usr/lib/x86_64-linux-gnu/libgtk-3.so");
-
-/**
- */
-
+', '/usr/lib/x86_64-linux-gnu/libgtk-3.so');
 
 $argc = FFI::new('int');
 $argv = FFI::new('char[0]');
@@ -304,9 +277,8 @@ $pargv = FFI::addr($argv);
 
 $ffi->gtk_init(FFI::addr($argc), FFI::addr($pargv));
 
-
 $win = new GtkWindow();
-$win->set_title("FFI PHP 7.4 Test");
+$win->set_title('FFI PHP 7.4 Test');
 $win->show_all();
 
 $ffi->gtk_main();
