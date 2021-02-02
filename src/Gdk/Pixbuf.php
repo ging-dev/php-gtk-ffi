@@ -1,55 +1,42 @@
 <?php
 
 namespace Gdk
-{
-	/**
-	 *
-	 */
-	class Pixbuf
-	{
-		/**
-		 * FFI Instance
-		 */
-		protected $ffi = "";
+;
 
-		/**
-		 * Gtk Instance
-		 */
-		public $cdata_instance = "";
+    class Pixbuf
+    {
+        /**
+         * FFI Instance.
+         */
+        protected $ffi = '';
 
-		/**
-		 *
-		 */
-		public function __construct()
-		{
-			
-			// Get instance of FFI
-			$this->ffi = \Gtk::getFFI();
-		}
+        /**
+         * Gtk Instance.
+         */
+        public $cdata_instance = '';
 
-		/**
-		 *
-		 */
-		static public function new_from_file($path)
-		{
-			$pixbuf = \Gtk::getFFI()->gdk_pixbuf_new_from_file($path, NULL);
+        public function __construct()
+        {
+            // Get instance of FFI
+            $this->ffi = \Gtk::getFFI();
+        }
 
-			$object = new \Gdk\Pixbuf();
-			$object->cdata_instance = $pixbuf;
+        public static function new_from_file($path)
+        {
+            $pixbuf = \Gtk::getFFI()->gdk_pixbuf_new_from_file($path, null);
 
-			return $object;
-		}
+            $object = new \Gdk\Pixbuf();
+            $object->cdata_instance = $pixbuf;
 
-		public function __get($name)
-		{
-			if($name == "button") 
-			{
-				return $this->ffi->cast("GdkEventButton", $this->cdata_instance->button);
-			}
-			else if($name == "key") 
-			{
-				return $this->ffi->cast("GdkEventKey", $this->cdata_instance->button);
-			}
-		}
-	}
-}
+            return $object;
+        }
+
+        public function __get($name)
+        {
+            if ('button' == $name) {
+                return $this->ffi->cast('GdkEventButton', $this->cdata_instance->button);
+            } elseif ('key' == $name) {
+                return $this->ffi->cast('GdkEventKey', $this->cdata_instance->button);
+            }
+        }
+    }

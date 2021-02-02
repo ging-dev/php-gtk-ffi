@@ -1,21 +1,18 @@
 <?php
 
-namespace Gtk 
-{
+namespace Gtk
+;
 
-	use FFI;
+    use FFI;
 
-	/**
-	 *
-	 */
-	class GtkWindow
-	{
-		public const TOPLEVEL = 0;
-		public const POPUP = 1;
+    class GtkWindow
+    {
+        public const TOPLEVEL = 0;
+        public const POPUP = 1;
 
-		public function __construct($window_type=GtkWindow::TOPLEVEL)
-		{
-			$this->ffi = FFI::cdef("
+        public function __construct($window_type = GtkWindow::TOPLEVEL)
+        {
+            $this->ffi = FFI::cdef('
 
 				typedef struct _GtkWidget GtkWidget;
 				typedef struct _GtkWindow GtkWindow;
@@ -45,40 +42,36 @@ namespace Gtk
 				gulong g_signal_connect_object (gpointer instance, const gchar *detailed_signal, GCallback c_handler, gpointer gobject, GConnectFlags connect_flags);
 				
 
-			", "libgtk-3.so");
+			', 'libgtk-3.so');
 
+            // $a = FFI::cdef("
 
-			// $a = FFI::cdef("
+            // 	typedef void* gpointer;
 
-			// 	typedef void* gpointer;
+            // 	typedef void  (*GCallback)              (void);
 
-			// 	typedef void  (*GCallback)              (void);
+            // 	void g_signal_connect_object (gpointer instance, const gchar *detailed_signal, GCallback c_handler, gpointer gobject, GConnectFlags connect_flags););
 
-			// 	void g_signal_connect_object (gpointer instance, const gchar *detailed_signal, GCallback c_handler, gpointer gobject, GConnectFlags connect_flags););
+            // ", "libglib-2.0.so.0");
 
-			// ", "libglib-2.0.so.0");
+            $this->instance = $this->ffi->gtk_window_new($window_type);
+        }
 
-			$this->instance = $this->ffi->gtk_window_new($window_type);
+        public function show_all()
+        {
+            $this->ffi->gtk_widget_show_all($this->instance);
+        }
 
-			
-		}
+        public function set_title($title = '')
+        {
+            $this->ffi->gtk_window_set_title($this->ffi->cast('GtkWindow *', $this->instance), $title);
+        }
 
-		public function show_all()
-		{
-			$this->ffi->gtk_widget_show_all($this->instance);
-		}
+        public function connect($signal, $callback)
+        {
+            $params = FFI::new('int');
+            $params->cdata = 25;
 
-		public function set_title($title="")
-		{
-			$this->ffi->gtk_window_set_title($this->ffi->cast("GtkWindow *", $this->instance), $title);
-		}
-
-		public function connect($signal, $callback)
-		{
-			$params = FFI::new("int");
-			$params->cdata = 25;
-
-			$this->ffi->g_signal_connect_object($this->ffi->cast("gpointer *", $this->instance), $signal, $callback, NULL, 1);
-		}
-	}
-}
+            $this->ffi->g_signal_connect_object($this->ffi->cast('gpointer *', $this->instance), $signal, $callback, null, 1);
+        }
+    }

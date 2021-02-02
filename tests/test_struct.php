@@ -1,27 +1,27 @@
 <?php
 
 /**
- *  I dont know how to do dinamic char size. So, struct can be created with this way
+ *  I dont know how to do dinamic char size. So, struct can be created with this way.
  */
 
 // string to write struct
-$mystring = "My String!";
+$mystring = 'My String!';
 
 // Create
-$test = FFI::new("
+$test = FFI::new('
 		struct test {
 			int field_int; 
 			char field_char; 
-			const char field_string[" . strlen($mystring) . "]; 
+			const char field_string['.strlen($mystring).']; 
 			float field_float; 
 		}
-	");
+	');
 
 // Populate int
 $test->field_int = 59;
 
 // Populate char
-$test->field_char = "A";
+$test->field_char = 'A';
 
 // Populate string
 FFI::memcpy($test->field_string, $mystring, strlen($mystring));
@@ -29,7 +29,7 @@ FFI::memcpy($test->field_string, $mystring, strlen($mystring));
 // Populate float
 $test->field_float = 42.3;
 
-// Dump all 
+// Dump all
 var_dump($test);
 
 // Dump single field

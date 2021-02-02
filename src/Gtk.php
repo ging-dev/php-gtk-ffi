@@ -1,57 +1,51 @@
 <?php
 
-/**
- *
- */
 class Gtk extends PhpGtk3
 {
-	private static $instance;
+    private static $instance;
 
-	/**
-	 * FFI Object
-	 */
-	protected $ffi = "";
+    /**
+     * FFI Object.
+     */
+    protected $ffi = '';
 
-	/**
-	 * Invalida os metodos magicos
-	 */
-	private function __clone() {}
-	private function __wakeup() {}
-	private function __construct() {}
+    /**
+     * Invalida os metodos magicos.
+     */
+    private function __clone()
+    {
+    }
 
-	
+    private function __wakeup()
+    {
+    }
 
-	/**
-	 *
-	 */
-	public static function init(int $argc=0, array $argv=[])
-	{
-		$instance = self::getInstance();
+    private function __construct()
+    {
+    }
 
-		$argc = FFI::new('int');
-		$argv = FFI::new('char[0]');
-		$pargv = FFI::addr($argv);
+    public static function init(int $argc = 0, array $argv = [])
+    {
+        $instance = self::getInstance();
 
-		$instance->ffi->gtk_init(\FFI::addr($argc), \FFI::addr($pargv));
-	}
+        $argc = FFI::new('int');
+        $argv = FFI::new('char[0]');
+        $pargv = FFI::addr($argv);
 
-	/**
-	 *
-	 */
-	public static function main()
-	{
-		$instance = self::getInstance();
+        $instance->ffi->gtk_init(\FFI::addr($argc), \FFI::addr($pargv));
+    }
 
-		$instance->ffi->gtk_main();
-	}
+    public static function main()
+    {
+        $instance = self::getInstance();
 
-	/**
-	 *
-	 */
-	public static function main_quit()
-	{
-		$instance = self::getInstance();
+        $instance->ffi->gtk_main();
+    }
 
-		$instance->ffi->gtk_main_quit();
-	}
+    public static function main_quit()
+    {
+        $instance = self::getInstance();
+
+        $instance->ffi->gtk_main_quit();
+    }
 }

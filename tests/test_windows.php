@@ -1,20 +1,15 @@
 <?php
 
 /**
-
 Types:
-	- https://developer.gnome.org/glib/stable/glib-Basic-Types.html
+    - https://developer.gnome.org/glib/stable/glib-Basic-Types.html
 
-**/
-
-/**
- *
- */
+ **/
 class GtkWindow
 {
-	public function __construct($tipo=1)
-	{
-		$this->ffi = FFI::cdef("
+    public function __construct($tipo = 1)
+    {
+        $this->ffi = FFI::cdef('
 
 			typedef void* gpointer;
 			typedef char gchar;
@@ -78,49 +73,37 @@ class GtkWindow
 
 
 
-		", ".\\libgtk-3-0.dll");
+		', '.\\libgtk-3-0.dll');
 
-		$this->instance = $this->ffi->gtk_window_new(0);
+        $this->instance = $this->ffi->gtk_window_new(0);
 
-		$this->button = $this->ffi->gtk_button_new_with_label("BUTTON");
-		$this->entry = $this->ffi->gtk_entry_new();
-		$this->box = $this->ffi->gtk_box_new(1, 5);
-		
-		$this->ffi->gtk_box_pack_start($this->ffi->cast("GtkBox *", $this->box), $this->ffi->cast("GtkWidget *", $this->entry), true, true, 0);
-		$this->ffi->gtk_box_pack_start($this->ffi->cast("GtkBox *", $this->box), $this->ffi->cast("GtkWidget *", $this->button), true, true, 0);
+        $this->button = $this->ffi->gtk_button_new_with_label('BUTTON');
+        $this->entry = $this->ffi->gtk_entry_new();
+        $this->box = $this->ffi->gtk_box_new(1, 5);
 
-		$this->ffi->gtk_container_add($this->ffi->cast("GtkContainer *", $this->instance), $this->ffi->cast("GtkWidget *", $this->box));
-		$this->ffi->gtk_container_set_border_width($this->ffi->cast("GtkContainer *", $this->instance), 5);
+        $this->ffi->gtk_box_pack_start($this->ffi->cast('GtkBox *', $this->box), $this->ffi->cast('GtkWidget *', $this->entry), true, true, 0);
+        $this->ffi->gtk_box_pack_start($this->ffi->cast('GtkBox *', $this->box), $this->ffi->cast('GtkWidget *', $this->button), true, true, 0);
 
+        $this->ffi->gtk_container_add($this->ffi->cast('GtkContainer *', $this->instance), $this->ffi->cast('GtkWidget *', $this->box));
+        $this->ffi->gtk_container_set_border_width($this->ffi->cast('GtkContainer *', $this->instance), 5);
+    }
 
+    public function show_all()
+    {
+        $this->ffi->gtk_widget_show_all($this->instance);
+    }
 
-		
-
-
-	}
-
-	public function show_all()
-	{
-		$this->ffi->gtk_widget_show_all($this->instance);
-	}
-
-	public function set_title($title="")
-	{
-		$this->ffi->gtk_window_set_title($this->ffi->cast("GtkWindow *", $this->instance), $title);
-	}
+    public function set_title($title = '')
+    {
+        $this->ffi->gtk_window_set_title($this->ffi->cast('GtkWindow *', $this->instance), $title);
+    }
 }
 
-/**
- */
-$ffi = FFI::cdef("
+$ffi = FFI::cdef('
 	void gtk_init(int *, char **[]);
 	void gtk_main();
 	void gtk_main_quit();
-",".\\libgtk-3-0.dll");
-
-/**
- */
-
+', '.\\libgtk-3-0.dll');
 
 $argc = FFI::new('int');
 $argv = FFI::new('char[0]');
@@ -128,9 +111,8 @@ $pargv = FFI::addr($argv);
 
 $ffi->gtk_init(FFI::addr($argc), FFI::addr($pargv));
 
-
 $win = new GtkWindow();
-$win->set_title("FFI PHP 7.4 Test");
+$win->set_title('FFI PHP 7.4 Test');
 $win->show_all();
 
 $ffi->gtk_main();
